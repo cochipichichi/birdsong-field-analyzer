@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Birdsong Field Analyzer · Pancho Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script defer src="js/controls.js"></script>
+  <script defer src="js/audio.js"></script>
+  <script defer src="js/network.js"></script>
+  <script defer src="js/sw-register.js"></script>
+</head>
+<body class="theme-dark">
+  <header class="top-bar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-text">Birdsong Field Analyzer · Pancho Edition</span>
+    </div>
+    <nav class="inclusive-controls" aria-label="Controles de accesibilidad">
+      <button class="ctrl-btn" id="btn-home" title="Inicio">🏠</button>
+      <button class="ctrl-btn" id="btn-tts" title="Narrador">🗣️</button>
+      <button class="ctrl-btn" id="btn-theme" title="Tema claro/oscuro">🌓</button>
+      <button class="ctrl-btn" id="btn-font-plus" title="Aumentar tamaño de letra">A+</button>
+      <button class="ctrl-btn" id="btn-font-minus" title="Disminuir tamaño de letra">A−</button>
+      <button class="ctrl-btn" id="btn-lang" title="Cambiar idioma ES/EN">🌐</button>
+      <button class="ctrl-btn" id="btn-focus" title="Modo enfoque / reducir distracción">🧠</button>
+      <button class="ctrl-btn" id="btn-search" title="Buscar en el contenido">🔍</button>
+    </nav>
+  </header>
+
+  <main class="layout layout-3col">
+    <!-- Panel 3D -->
+    <section class="viz-panel" aria-label="Red 3D del canto de aves">
+      <div id="three-container"></div>
+      <div class="reel-caption" data-lang="es">
+        <p>
+          <span>Visualización en vivo del canto capturado en terreno.</span>
+        </p>
+        <p>
+          <span class="accent">Cada nodo</span> es una sílaba detectada y
+          <span class="accent">cada línea</span> una transición en el canto.
+        </p>
+      </div>
+      <div class="reel-caption hidden" data-lang="en">
+        <p>
+          <span>Live visualization of the song captured in the field.</span>
+        </p>
+        <p>
+          <span class="accent">Each node</span> is a detected syllable and
+          <span class="accent">each edge</span> a transition in the song.
+        </p>
+      </div>
+    </section>
+
+    <!-- Panel central: audio en vivo -->
+    <section class="info-panel">
+      <h1 id="title-es">Modo terreno · Captura de audio</h1>
+      <h1 id="title-en" class="hidden">Field mode · Audio capture</h1>
+
+      <p class="lead" id="lead-es">
+        Usa el micrófono del dispositivo para escuchar el entorno. El analizador extrae
+        patrones básicos (energía, bandas de frecuencia) y alimenta la red 3D. Esta versión
+        es un prototipo educativo: la detección de especies es aproximada y está pensada para
+        experimentación, no para investigación profesional.
+      </p>
+      <p class="lead hidden" id="lead-en">
+        Uses the device microphone to listen to the environment. The analyzer extracts basic
+        patterns (energy, frequency bands) and feeds the 3D network. This version is an
+        educational prototype: species detection is approximate and meant for exploration,
+        not professional research.
+      </p>
+
+      <div class="section-card">
+        <h2>Estado del audio</h2>
+        <p id="audio-status">🎙️ Pulsa “Iniciar escucha” para comenzar.</p>
+        <button class="action-btn" id="btn-start-audio">▶️ Iniciar escucha</button>
+        <button class="action-btn secondary" id="btn-stop-audio">⏸️ Detener</button>
+        <div class="level-bar-wrapper">
+          <div class="level-bar" id="level-bar"></div>
+        </div>
+        <small id="hint-es">
+          Consejo: acércate a un árbol o zona con aves, mantén el teléfono quieto y evita hablar mientras grabas.
+        </small>
+        <small id="hint-en" class="hidden">
+          Tip: move closer to a tree or bird area, keep the phone still and avoid speaking while recording.
+        </small>
+      </div>
+
+      <div class="section-card">
+        <h2>Sesión actual</h2>
+        <p id="session-summary">
+          ⏱️ Duración: 0 s · 🔹 Sílabas estimadas: 0 · 🔗 Transiciones: 0
+        </p>
+        <button class="action-btn secondary" id="btn-reset-session">♻️ Reiniciar sesión</button>
+      </div>
+
+      <div class="section-card">
+        <h2>Exportar datos</h2>
+        <p>Cuando termines la sesión puedes descargar un CSV con las sílabas estimadas y la especie sugerida.</p>
+        <button class="action-btn" id="btn-download-csv">📥 Descargar CSV</button>
+      </div>
+    </section>
+
+    <!-- Panel derecho: especies -->
+    <aside class="info-panel">
+      <h2 id="species-title-es">Detección aproximada de especies</h2>
+      <h2 id="species-title-en" class="hidden">Approximate species detection</h2>
+
+      <p id="species-intro-es" class="lead">
+        El algoritmo agrupa energía en bandas de frecuencia y ritmo y compara con un
+        pequeño banco local de patrones. Es sólo una <strong>estimación educativa</strong>.
+        Para trabajo serio, conecta este front-end a BirdNET u otro modelo profesional.
+      </p>
+      <p id="species-intro-en" class="lead hidden">
+        The algorithm groups energy in frequency bands and rhythm and compares it with
+        a small local pattern bank. It is only an <strong>educational estimate</strong>.
+        For serious work, connect this front-end to BirdNET or another professional model.
+      </p>
+
+      <div class="section-card">
+        <h3>Especie sugerida (demo local)</h3>
+        <p id="species-current">🕊️ Esperando audio...</p>
+        <ul id="species-list" class="species-list"></ul>
+      </div>
+
+      <div class="section-card">
+        <h3>Modo de inferencia</h3>
+        <p>
+          Esta versión incluye sólo heurísticas locales y un “demo aleatorio
+          controlado” para probar la interfaz.
+        </p>
+        <ul class="mode-list">
+          <li><strong>Local demo:</strong> usa energía y rango de frecuencias para sugerir especies típicas.</li>
+          <li><strong>API externa (BirdNET):</strong> deja lista la función <code>sendToExternalAPI()</code> para conectar un backend futuro.</li>
+        </ul>
+      </div>
+
+      <div class="section-card">
+        <h3>Otras vistas</h3>
+        <div class="action-buttons">
+          <a class="action-btn" href="viewer3D/index.html">👁️ 3D Viewer</a>
+          <button class="action-btn disabled">📱 AR (próximamente)</button>
+          <button class="action-btn disabled">🥽 VR (próximamente)</button>
+          <button class="action-btn disabled">🧪 Quiz</button>
+          <button class="action-btn disabled">🎟️ Ticket</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <p>
+      Prototipo educativo para explorar canto de aves en terreno · Neotech EduLab ·
+      Sugerencias de especies aproximadas · Para uso profesional conecta BirdNET u otro backend.
+    </p>
+  </footer>
+</body>
+</html>
