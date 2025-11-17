@@ -1,5 +1,12 @@
-const CACHE_NAME = "birdsong-field-v1";
-const ASSETS = ["./", "./index.html", "./css/styles.css", "./js/audio.js", "./js/network.js", "./js/controls.js"];
+const CACHE_NAME = "birdsong-field-prod-v1";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./css/styles.css",
+  "./js/audio-prod.js",
+  "./js/network.js",
+  "./js/controls.js"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

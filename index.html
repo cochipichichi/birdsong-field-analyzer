@@ -2,13 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Birdsong Field Analyzer · Pancho Edition</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birdsong Field Analyzer · Neotech Field PWA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#050509" />
   <link rel="stylesheet" href="css/styles.css" />
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
   <script defer src="js/controls.js"></script>
-  <script defer src="js/audio.js"></script>
+  <script defer src="js/audio-prod.js"></script>
   <script defer src="js/network.js"></script>
   <script defer src="js/sw-register.js"></script>
 </head>
@@ -16,7 +17,7 @@
   <header class="top-bar">
     <div class="brand">
       <span class="brand-dot"></span>
-      <span class="brand-text">Birdsong Field Analyzer · Pancho Edition</span>
+      <span class="brand-text">Birdsong Field Analyzer · Neotech</span>
     </div>
     <nav class="inclusive-controls" aria-label="Controles de accesibilidad">
       <button class="ctrl-btn" id="btn-home" title="Inicio">🏠</button>
@@ -36,47 +37,47 @@
       <div id="three-container"></div>
       <div class="reel-caption" data-lang="es">
         <p>
-          <span>Visualización en vivo del canto capturado en terreno.</span>
+          <span>Visualización en vivo del ambiente sonoro.</span>
         </p>
         <p>
-          <span class="accent">Cada nodo</span> es una sílaba detectada y
-          <span class="accent">cada línea</span> una transición en el canto.
+          <span class="accent">Cada nodo</span> representa un evento sonoro
+          y <span class="accent">cada línea</span> una transición en el tiempo.
         </p>
       </div>
       <div class="reel-caption hidden" data-lang="en">
         <p>
-          <span>Live visualization of the song captured in the field.</span>
+          <span>Live visualization of the soundscape.</span>
         </p>
         <p>
-          <span class="accent">Each node</span> is a detected syllable and
-          <span class="accent">each edge</span> a transition in the song.
+          <span class="accent">Each node</span> is a sound event
+          and <span class="accent">each edge</span> a transition over time.
         </p>
       </div>
     </section>
 
     <!-- Panel central: audio en vivo -->
     <section class="info-panel">
-      <h1 id="title-es">Modo terreno · Captura de audio</h1>
-      <h1 id="title-en" class="hidden">Field mode · Audio capture</h1>
+      <h1 id="title-es">Modo terreno · Análisis local en el navegador</h1>
+      <h1 id="title-en" class="hidden">Field mode · Local browser analysis</h1>
 
       <p class="lead" id="lead-es">
-        Usa el micrófono del dispositivo para escuchar el entorno. El analizador extrae
-        patrones básicos (energía, bandas de frecuencia) y alimenta la red 3D. Esta versión
-        es un prototipo educativo: la detección de especies es aproximada y está pensada para
-        experimentación, no para investigación profesional.
+        Esta versión funciona 100% en el navegador del celular. No requiere servidor externo:
+        el micrófono se procesa en el dispositivo y genera la red 3D + estimaciones de banda y patrón.
+        Es ideal como herramienta educativa y de exploración en terreno.
       </p>
       <p class="lead hidden" id="lead-en">
-        Uses the device microphone to listen to the environment. The analyzer extracts basic
-        patterns (energy, frequency bands) and feeds the 3D network. This version is an
-        educational prototype: species detection is approximate and meant for exploration,
-        not professional research.
+        This version runs 100% in the phone browser. No external server is required:
+        the microphone is processed on-device to generate the 3D network and band/pattern estimates.
+        It is meant as an educational and exploratory field tool.
       </p>
 
       <div class="section-card">
         <h2>Estado del audio</h2>
         <p id="audio-status">🎙️ Pulsa “Iniciar escucha” para comenzar.</p>
-        <button class="action-btn" id="btn-start-audio">▶️ Iniciar escucha</button>
-        <button class="action-btn secondary" id="btn-stop-audio">⏸️ Detener</button>
+        <div class="horizontal-buttons">
+          <button class="action-btn" id="btn-start-audio">▶️ Iniciar escucha</button>
+          <button class="action-btn secondary" id="btn-stop-audio">⏸️ Detener</button>
+        </div>
         <div class="level-bar-wrapper">
           <div class="level-bar" id="level-bar"></div>
         </div>
@@ -91,49 +92,45 @@
       <div class="section-card">
         <h2>Sesión actual</h2>
         <p id="session-summary">
-          ⏱️ Duración: 0 s · 🔹 Sílabas estimadas: 0 · 🔗 Transiciones: 0
+          ⏱️ Duración: 0 s · 🔹 Eventos detectados: 0 · 🔗 Transiciones: 0
         </p>
-        <button class="action-btn secondary" id="btn-reset-session">♻️ Reiniciar sesión</button>
+        <button class="action-btn secondary full-width" id="btn-reset-session">♻️ Reiniciar sesión</button>
       </div>
 
       <div class="section-card">
         <h2>Exportar datos</h2>
-        <p>Cuando termines la sesión puedes descargar un CSV con las sílabas estimadas y la especie sugerida.</p>
-        <button class="action-btn" id="btn-download-csv">📥 Descargar CSV</button>
+        <p>Descarga un CSV con los eventos detectados, banda dominante y especie aproximada sugerida.</p>
+        <button class="action-btn full-width" id="btn-download-csv">📥 Descargar CSV</button>
       </div>
     </section>
 
     <!-- Panel derecho: especies -->
     <aside class="info-panel">
-      <h2 id="species-title-es">Detección aproximada de especies</h2>
-      <h2 id="species-title-en" class="hidden">Approximate species detection</h2>
+      <h2 id="species-title-es">Estimación local de especies (heurística)</h2>
+      <h2 id="species-title-en" class="hidden">Local species estimation (heuristic)</h2>
 
       <p id="species-intro-es" class="lead">
-        El algoritmo agrupa energía en bandas de frecuencia y ritmo y compara con un
-        pequeño banco local de patrones. Es sólo una <strong>estimación educativa</strong>.
-        Para trabajo serio, conecta este front-end a BirdNET u otro modelo profesional.
+        El sistema analiza la energía en tres bandas de frecuencia y el patrón relativo entre ellas.
+        Usa firmas simples para sugerir algunas especies comunes de Chile. No es un identificador científico,
+        sino una herramienta didáctica. Puedes conectar más adelante un backend BirdNET opcional.
       </p>
       <p id="species-intro-en" class="lead hidden">
-        The algorithm groups energy in frequency bands and rhythm and compares it with
-        a small local pattern bank. It is only an <strong>educational estimate</strong>.
-        For serious work, connect this front-end to BirdNET or another professional model.
+        The system analyzes energy in three frequency bands and their relative pattern.
+        It uses simple signatures to suggest a few common Chilean species. It is not a scientific identifier,
+        but an educational tool. You may later attach an optional BirdNET backend if desired.
       </p>
 
       <div class="section-card">
-        <h3>Especie sugerida (demo local)</h3>
+        <h3>Especie sugerida</h3>
         <p id="species-current">🕊️ Esperando audio...</p>
         <ul id="species-list" class="species-list"></ul>
       </div>
 
       <div class="section-card">
-        <h3>Modo de inferencia</h3>
-        <p>
-          Esta versión incluye sólo heurísticas locales y un “demo aleatorio
-          controlado” para probar la interfaz.
-        </p>
+        <h3>Modos de uso</h3>
         <ul class="mode-list">
-          <li><strong>Local demo:</strong> usa energía y rango de frecuencias para sugerir especies típicas.</li>
-          <li><strong>API externa (BirdNET):</strong> deja lista la función <code>sendToExternalAPI()</code> para conectar un backend futuro.</li>
+          <li><strong>Offline:</strong> funciona en PWA, útil para salidas a terreno con mala señal.</li>
+          <li><strong>Online + backend:</strong> el archivo <code>audio-prod.js</code> deja un hook para conectar BirdNET u otro servicio.</li>
         </ul>
       </div>
 
@@ -152,8 +149,7 @@
 
   <footer class="footer">
     <p>
-      Prototipo educativo para explorar canto de aves en terreno · Neotech EduLab ·
-      Sugerencias de especies aproximadas · Para uso profesional conecta BirdNET u otro backend.
+      Birdsong Field Analyzer · Neotech EduLab · Funciona en celular como PWA · Uso educativo / exploratorio.
     </p>
   </footer>
 </body>

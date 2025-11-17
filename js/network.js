@@ -1,4 +1,4 @@
-// network.js – red 3D que se alimenta de eventos de audio (sílabas)
+// network.js – red 3D alimentada por eventos de audio (sílabas/eventos)
 
 let scene, camera, renderer;
 let nodeGroup, edgeGroup;
@@ -65,7 +65,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Crear nodo desde sílaba detectada
+// Crear nodo desde evento detectado
 function addSyllableNode(syllable) {
   if (!nodeGroup) return;
 
@@ -130,7 +130,7 @@ function addSyllableNode(syllable) {
 document.addEventListener("DOMContentLoaded", () => {
   initScene();
 
-  // Escucha eventos de sílabas generados por audio.js
+  // Escucha eventos generados por audio-prod.js
   window.addEventListener("birdsong-syllable", (ev) => {
     addSyllableNode(ev.detail);
   });
